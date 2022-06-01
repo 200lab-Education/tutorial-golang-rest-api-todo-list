@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -23,7 +24,14 @@ type ToDoItem struct {
 func (ToDoItem) TableName() string { return "todo_items" }
 
 func main() {
-	dsn := "root:my-root-pass@tcp(127.0.0.1:3306)/todo_db?charset=utf8mb4&parseTime=True&loc=Local"
+	// Checking that an environment variable is present or not.
+	mysqlConnStr, ok := os.LookupEnv("MYSQL_CONNECTION")
+
+	if !ok {
+		log.Fatalln("Missing MySQL connection string.")
+	}
+
+	dsn := mysqlConnStr
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
